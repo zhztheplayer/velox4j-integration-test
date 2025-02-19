@@ -1,0 +1,60 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [
+          "ubuntu:20.04",
+          "ubuntu:22.04",
+          "ubuntu:24.04",
+          "ubuntu:25.04",
+          "centos:7",
+          "centos:8",
+          "debian:11",
+          "debian:12",
+          "oraclelinux:7",
+          "oraclelinux:8",
+          "oraclelinux:9",
+          "fedora:32",
+          "fedora:39",
+          "fedora:40",
+          "fedora:41",
+          "amazonlinux:1",
+          "amazonlinux:2"
+        ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Tests
+        run: |
+          docker run -v ${{ github.workspace }}:/work -w /work ${{ matrix.os }} bash -c "
+            wget https://builds.openlogic.com/downloadJDK/openlogic-openjdk/11.0.26+4/openlogic-openjdk-11.0.26+4-linux-x64.tar.gz -O openjdk-11.tar.gz
+            mkdir openjdk-11
+            tar -xvf openjdk-11.tar.gz --strip-components 1 -C openjdk-11
+            export JAVA_HOME="$(readlink -f openjdk-11)"
+            wget https://archive.apache.org/dist/maven/maven-3/3.9.2/binaries/apache-maven-3.9.2-bin.tar.gz -O maven.tar.gz
+            mkdir maven
+            tar -xvf maven.tar.gz --strip-components 1 -C maven
+            maven/bin/mvn -U clean test
+          "
