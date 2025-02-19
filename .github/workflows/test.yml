@@ -16,6 +16,15 @@
 name: Test
 
 on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '**/*'
+  push:
+    branches:
+      - 'main'
+    paths:
+      - '**/*'
   workflow_dispatch:
   schedule:
     - cron: "0 */3 * * *"
