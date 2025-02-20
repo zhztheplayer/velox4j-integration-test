@@ -18,7 +18,6 @@
 package io.github.zhztheplayer.velox4j.integration;
 
 import io.github.zhztheplayer.velox4j.Velox4j;
-import io.github.zhztheplayer.velox4j.arrow.Arrow;
 import io.github.zhztheplayer.velox4j.config.Config;
 import io.github.zhztheplayer.velox4j.config.ConnectorConfig;
 import io.github.zhztheplayer.velox4j.connector.Assignment;
@@ -29,7 +28,7 @@ import io.github.zhztheplayer.velox4j.connector.HiveConnectorSplit;
 import io.github.zhztheplayer.velox4j.connector.HiveTableHandle;
 import io.github.zhztheplayer.velox4j.data.RowVector;
 import io.github.zhztheplayer.velox4j.iterator.UpIterator;
-import io.github.zhztheplayer.velox4j.jni.JniApi;
+import io.github.zhztheplayer.velox4j.jni.Session;
 import io.github.zhztheplayer.velox4j.memory.AllocationListener;
 import io.github.zhztheplayer.velox4j.memory.MemoryManager;
 import io.github.zhztheplayer.velox4j.plan.TableScanNode;
@@ -117,25 +116,25 @@ public class QueryTest {
     // 5. Build the query.
     final Query query = new Query(scanNode, List.of(split), Config.empty(), ConnectorConfig.empty());
 
-    // 6. Create a JNI session.
+    // 6. Create a Velox4j session.
     final MemoryManager memoryManager = MemoryManager.create(AllocationListener.NOOP);
-    final JniApi jniApi = JniApi.create(memoryManager);
+    final Session session = Session.create(memoryManager);
 
     // 7. Execute the query.
-    final UpIterator itr = query.execute(jniApi);
+    final UpIterator itr = session.executeQuery(query);
 
     // 8. Collect and print results.
     int i = 0;
     while (itr.hasNext()) {
       final RowVector rowVector = itr.next(); // 8.1. Get next RowVector returned by Velox.
-      final VectorSchemaRoot vsr = Arrow.toArrowTable(new RootAllocator(), rowVector).toVectorSchemaRoot(); // 8.2. Convert the RowVector into Arrow format (an Arrow VectorSchemaRoot in this case).
+      final VectorSchemaRoot vsr = session.arrowOps().toArrowTable(new RootAllocator(), rowVector).toVectorSchemaRoot(); // 8.2. Convert the RowVector into Arrow format (an Arrow VectorSchemaRoot in this case).
       final String expectedOutput = ResourceTests.readResourceAsString(String.format("output/nation-%d.tsv", i++));
       Assert.assertEquals(expectedOutput, vsr.contentToTSVString()); // 8.3. Verify the result.
       vsr.close(); // 8.4. Release the Arrow VectorSchemaRoot.
     }
 
-    // 9. Close the JNI session.
-    jniApi.close();
+    // 9. Close the Velox4j session.
+    session.close();
     memoryManager.close();
   }
 
