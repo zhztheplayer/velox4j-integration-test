@@ -28,12 +28,12 @@ import io.github.zhztheplayer.velox4j.connector.HiveConnectorSplit;
 import io.github.zhztheplayer.velox4j.connector.HiveTableHandle;
 import io.github.zhztheplayer.velox4j.data.RowVector;
 import io.github.zhztheplayer.velox4j.iterator.UpIterator;
-import io.github.zhztheplayer.velox4j.jni.Session;
 import io.github.zhztheplayer.velox4j.memory.AllocationListener;
 import io.github.zhztheplayer.velox4j.memory.MemoryManager;
 import io.github.zhztheplayer.velox4j.plan.TableScanNode;
 import io.github.zhztheplayer.velox4j.query.BoundSplit;
 import io.github.zhztheplayer.velox4j.query.Query;
+import io.github.zhztheplayer.velox4j.session.Session;
 import io.github.zhztheplayer.velox4j.tests.ResourceTests;
 import io.github.zhztheplayer.velox4j.type.BigIntType;
 import io.github.zhztheplayer.velox4j.type.RowType;
@@ -118,10 +118,10 @@ public class QueryTest {
 
     // 6. Create a Velox4j session.
     final MemoryManager memoryManager = MemoryManager.create(AllocationListener.NOOP);
-    final Session session = Session.create(memoryManager);
+    final Session session = Velox4j.newSession(memoryManager);
 
     // 7. Execute the query.
-    final UpIterator itr = session.executeQuery(query);
+    final UpIterator itr = session.queryOps().execute(query);
 
     // 8. Collect and print results.
     int i = 0;
