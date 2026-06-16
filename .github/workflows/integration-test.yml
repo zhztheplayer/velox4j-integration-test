@@ -35,23 +35,18 @@ jobs:
     strategy:
       matrix:
         image: [
-          "ubuntu:20.04",
           "ubuntu:22.04",
           "ubuntu:24.04",
           "ubuntu:25.04",
-          "centos:7",
-          "centos:8",
-          "debian:11",
           "debian:12",
-          "oraclelinux:7",
-          "oraclelinux:8",
-          "oraclelinux:9",
-          "fedora:32",
           "fedora:39",
           "fedora:40",
           "fedora:41",
-          "amazonlinux:1",
-          "amazonlinux:2"
+          "centos:stream9",
+          "rockylinux:9",
+          "almalinux:9",
+          "oraclelinux:9",
+          "amazonlinux:2023"
         ]
     steps:
       - uses: actions/checkout@v4

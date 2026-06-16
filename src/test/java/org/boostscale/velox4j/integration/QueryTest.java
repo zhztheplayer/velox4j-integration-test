@@ -23,7 +23,7 @@ import org.boostscale.velox4j.config.Config;
 import org.boostscale.velox4j.config.ConnectorConfig;
 import org.boostscale.velox4j.connector.*;
 import org.boostscale.velox4j.data.RowVector;
-import org.boostscale.velox4j.iterator.UpIterators;
+import org.boostscale.velox4j.iterator.ExportIterators;
 import org.boostscale.velox4j.memory.AllocationListener;
 import org.boostscale.velox4j.memory.MemoryManager;
 import org.boostscale.velox4j.plan.TableScanNode;
@@ -111,7 +111,7 @@ public class QueryTest {
     task.noMoreSplits(scanNode.getId());
 
     // 8. Create a Java iterator from the Velox task.
-    final Iterator<RowVector> itr = UpIterators.asJavaIterator(task);
+    final Iterator<RowVector> itr = ExportIterators.asJavaIterator(task);
 
     // 9. Collect and print results.
     while (itr.hasNext()) {
